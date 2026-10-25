@@ -238,11 +238,11 @@ In line with the Congressional App Challenge rules, all AI use is disclosed here
 
 - **Claude (Anthropic)** was used as an AI coding coach. It explained concepts, suggested and reviewed code, helped find and fix bugs, and runs the hourly scheduled task that computes driving distances.
 - **Some illustrations were AI-generated** (the cover image was labelled "Made with AI").
-- **My own work:** the idea and the written plan, every feature and design decision, testing with multiple accounts, finding bugs, and directing each change. *(Edit this section so it accurately describes your own contributions.)*
+- **My own work:** the idea and the written plan, every feature and design decision, basic coding, code review, testing with multiple accounts, finding bugs, and directing each change. *(Edit this section so it accurately describes your own contributions.)*
 - **Outside services:** U.S. Census Geocoder, Zippopotam.us, OSRM / OpenStreetMap and Google Fonts.
 
 ## Author
 
-**[Your name]**, [school], [grade]
+**Sara Chaudhari**, Emerald High
 
 Inspired by my interest in astrobiology, my time as president of my middle school astronomy society, and the volunteers of the East Bay Astronomical Society who shared their time and telescopes with me.
