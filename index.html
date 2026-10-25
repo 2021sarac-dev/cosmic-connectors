@@ -1,0 +1,1288 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Cosmic Connectors</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,wght@0,400;0,500;0,600;1,500&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+  <style>
+    /* NEW (classy redesign): a light, neutral palette, kept in one place
+       as variables so every element below reuses the same few colors */
+    :root {
+      --paper: #faf9f7;   /* page background - soft, warm white */
+      --card: #ffffff;    /* card/box background */
+      --ink: #26282c;     /* main text - near-black, not pure black */
+      --slate: #6b6f76;   /* secondary / helper text */
+      --line: #dddcd6;    /* hairline borders and dividers */
+      --navy: #30465e;    /* the one accent color, used sparingly */
+      --navy-dark: #22333f;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      background-color: var(--paper);
+      color: var(--ink);
+      font-family: 'Inter', sans-serif;
+      text-align: center;
+      padding: 40px;
+      line-height: 1.6;
+    }
+
+    h1, h2, h3, h4 {
+      font-family: 'Fraunces', serif;
+      font-weight: 500;
+      color: var(--ink);
+      line-height: 1.3;
+    }
+    h1 {
+      font-size: 27px;
+      display: flex;
+      align-items: center;
+      /* UPDATED: left-aligned, lined up with the left edge of the page content */
+      justify-content: flex-start;
+      max-width: 1100px;
+      margin: 0 auto 24px;
+      gap: 10px;
+    }
+    h2 { font-size: 22px; }
+    h3 { font-size: 17px; }
+    h4 { font-size: 15px; margin: 18px 0 2px; }
+
+    button {
+      font-family: 'Inter', sans-serif;
+      padding: 9px 20px;
+      margin: 8px 5px;
+      font-size: 14px;
+      font-weight: 500;
+      border-radius: 6px;
+      border: 1px solid var(--ink);
+      background: transparent;
+      color: var(--ink);
+      cursor: pointer;
+      transition: background-color 0.15s ease;
+    }
+    button:hover { background: var(--line); }
+
+    /* NEW: the one filled button style, reserved for each screen's main action */
+    button.primary {
+      background: var(--navy);
+      border-color: var(--navy);
+      color: var(--paper);
+    }
+    button.primary:hover { background: var(--navy-dark); border-color: var(--navy-dark); }
+
+    /* NEW: a quiet text-style button, for Back / Logout - no box around it */
+    .ghost-btn {
+      border: none;
+      background: none;
+      color: var(--slate);
+      text-decoration: underline;
+      text-underline-offset: 3px;
+      font-weight: 400;
+    }
+    .ghost-btn:hover { background: none; color: var(--ink); }
+
+    .section {
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 18px;
+      margin: 20px auto;
+      max-width: 500px;
+      background: var(--card);
+    }
+    .logout-btn {
+      position: absolute;
+      top: 15px;
+      right: 15px;
+    }
+    /* NEW (Step 21): pushes the whole dashboard's content down,
+       so nothing sits underneath the corner-pinned Logout button */
+    .dashboard {
+      padding-top: 55px;
+    }
+    input:not([type="checkbox"]):not([type="radio"]) {
+      display: block;
+      /* fill the box it sits in, but never wider than 250px - a fixed
+         250px was wider than the narrow sign-in card on the welcome page */
+      width: 100%;
+      max-width: 250px;
+      margin: 8px auto;
+      padding: 9px 10px;
+      border-radius: 6px;
+      border: 1px solid var(--line);
+      font-family: 'Inter', sans-serif;
+      font-size: 14px;
+      background: var(--card);
+      color: var(--ink);
+    }
+    input:focus { outline: none; border-color: var(--navy); }
+    a { color: var(--navy); }
+
+    /* NEW (welcome page redesign): two-column layout, left = info, right = sign in / join */
+    .welcome-wrap {
+      display: flex;
+      gap: 40px;
+      text-align: left;
+      max-width: 1100px;
+      margin: 0 auto;
+      align-items: flex-start;
+    }
+    .welcome-left {
+      flex: 3;
+    }
+    .welcome-right {
+      flex: 1;
+      min-width: 230px;
+      text-align: center;
+    }
+    .tagline {
+      font-family: 'Fraunces', serif;
+      font-style: italic;
+      font-size: 20px;
+      color: var(--navy);
+      margin-top: 0;
+    }
+    .role-sub {
+      font-size: 13px;
+      color: var(--slate);
+      margin: 0;
+    }
+    .closing {
+      font-family: 'Fraunces', serif;
+      font-style: italic;
+      color: var(--slate);
+      border-top: 1px solid var(--line);
+      padding-top: 18px;
+      margin-top: 26px;
+    }
+    /* NEW (request tables): one row per request, with column headings */
+    .table-wrap {
+      overflow-x: auto;
+      max-width: 920px;
+      margin: 12px auto;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: var(--card);
+    }
+    .request-table {
+      width: 100%;
+      border-collapse: collapse;
+      text-align: left;
+      font-size: 14px;
+    }
+    .request-table th {
+      font-weight: 500;
+      font-size: 13px;
+      color: var(--slate);
+      padding: 9px 12px;
+      border-bottom: 1px solid var(--line);
+      white-space: nowrap;
+    }
+    .request-table td {
+      padding: 10px 12px;
+      border-bottom: 1px solid var(--line);
+      vertical-align: middle;
+    }
+    .request-table tr:last-child td {
+      border-bottom: none;
+    }
+    .request-table .nowrap {
+      white-space: nowrap;
+    }
+    .request-table .topic {
+      font-weight: 500;
+    }
+    .request-table button {
+      margin: 0;
+      padding: 6px 12px;
+      font-size: 13px;
+      white-space: nowrap;
+    }
+    .badge {
+      display: inline-block;
+      font-size: 12px;
+      font-weight: 500;
+      padding: 2px 9px;
+      border-radius: 20px;
+      white-space: nowrap;
+      border: 1px solid var(--line);
+      color: var(--slate);
+    }
+    .badge-open { border-color: var(--navy); color: var(--navy); }
+    .badge-confirmed { background: #e6f0ea; border-color: #e6f0ea; color: #2d6a4a; }
+    .badge-title1 { background: #f6efd9; border-color: #f6efd9; color: #7a5f12; margin-left: 6px; }
+
+    /* NEW (Title 1 priority): Title 1 requests get their own labelled group
+       at the top of the open list, a warm tint and a gold edge on the left */
+    .request-table tr.priority-row td {
+      background: #fbf6e6;
+    }
+    .request-table tr.priority-row td:first-child {
+      box-shadow: inset 4px 0 0 #c9a23a;
+    }
+    .request-table tr.priority-row .school-name {
+      font-weight: 600;
+    }
+    .badge-priority {
+      background: #7a5f12;
+      border-color: #7a5f12;
+      color: #ffffff;
+      margin-left: 6px;
+    }
+    .request-table tr.group-row td {
+      font-size: 12px;
+      font-weight: 600;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      color: var(--slate);
+      background: var(--paper);
+      padding: 7px 12px;
+    }
+    .request-table tr.group-row.group-priority td {
+      color: #7a5f12;
+      background: #f6efd9;
+    }
+    .priority-callout {
+      max-width: 920px;
+      margin: 8px auto 0;
+      padding: 9px 14px;
+      border-radius: 8px;
+      background: #fbf6e6;
+      border: 1px solid #ecdcae;
+      color: #6b5310;
+      font-size: 14px;
+    }
+    .empty-note {
+      color: var(--slate);
+      font-size: 14px;
+    }
+    /* NEW (illustrations): the artwork is grey on white, so "multiply" lets the
+       white melt into the page colour and no box edge shows */
+    .art {
+      display: block;
+      max-width: 100%;
+      height: auto;
+      mix-blend-mode: multiply;
+    }
+    .home-art {
+      display: block;
+      float: right;
+      width: 390px; /* 30% bigger than the earlier 300px */
+      max-width: 100%;
+      height: auto;
+      margin: 0 0 14px 28px;
+      border-radius: 10px;
+      box-shadow: 0 4px 18px rgba(34, 51, 63, 0.16);
+    }
+    .hero-art {
+      float: right;
+      width: 300px;
+      margin: 0 0 14px 28px;
+    }
+    .roles-art {
+      width: 100%;
+      max-width: 300px;
+      margin: 0 auto 8px;
+    }
+    .page-art {
+      width: 100%;
+      max-width: 380px;
+      margin: 0 auto 14px;
+    }
+    .empty-art {
+      width: 100%;
+      max-width: 230px;
+      margin: 6px auto 0;
+    }
+    @media (max-width: 700px) {
+      .home-art {
+        float: none;
+        margin: 0 auto 14px;
+      }
+      .hero-art {
+        float: none;
+        margin: 0 auto 14px;
+      }
+      .welcome-wrap {
+        flex-direction: column;
+      }
+    }
+  </style>
+</head>
+<body>
+  <h1>
+    <!-- UPDATED: back to the original telescope emoji, just muted to fit the lighter palette -->
+    <span style="filter: grayscale(1) brightness(0.75) sepia(1) hue-rotate(170deg) saturate(1.6);">🔭</span>
+    Cosmic Connectors
+  </h1>
+
+  <div id="welcomeScreen">
+    <div class="welcome-wrap">
+
+      <!-- LEFT: the pitch / explanation -->
+      <div class="welcome-left">
+        <!-- UPDATED: full-size cover image (badge removed), across the whole left column -->
+        <img class="home-art" src="images/home.jpg" alt="Cosmic Connectors: Unlocking the Cosmos for Classrooms. Students, a teacher and astronomers around a handshake between a school and an observatory under a starry sky">
+        <p class="tagline">Unlocking the Cosmos for Classrooms</p>
+        <p>A new space race is underway, and today's students will be the ones
+        who lead it. Cosmic Connectors links schools with astronomy clubs,
+        universities, and space fans who have telescopes and expertise to share.</p>
+
+        <h3>Why it matters</h3>
+        <p>The future is being built in space, but telescopes are expensive and
+        many schools can't afford them. Meanwhile, great equipment often sits
+        unused. We bring the two together so students can see the Moon, the
+        planets, and the stars up close.</p>
+
+        <h3>How it works</h3>
+        <ol>
+          <li>Sign up. Tell us who you are and where you are.</li>
+          <li>Ask or offer. Schools request a telescope or a guest speaker.
+          Partners list what they can share.</li>
+          <li>Get matched. We send each request to partners who can help.</li>
+          <li>Confirm. The partner clicks "Confirm Match," and the school sees
+          that it's official.</li>
+        </ol>
+
+        <h3>A fair chance for every school</h3>
+        <p>Title 1 schools get first preference, and every school gets a
+        chance. If your school qualifies, just check the box when you make a
+        request.</p>
+
+        <p class="closing">Cosmic Connectors: sharing the sky, one classroom at a time.</p>
+      </div>
+
+      <!-- RIGHT: sign in + join, now built right into the welcome page -->
+      <div class="welcome-right">
+        <div class="section">
+          <h3>Welcome back</h3>
+          <input id="signinEmailBox" type="email" placeholder="Username/Email">
+          <input id="signinPasswordBox" type="password" placeholder="Password">
+          <button class="primary" onclick="signIn()">Sign In</button>
+          <p id="signinMessage"></p>
+        </div>
+
+        <div class="section">
+          <img class="art roles-art" src="images/roles.jpg" alt="A school group on one side and astronomy volunteers on the other, each with a telescope">
+          <p>New here? Choose your role.</p>
+
+          <!-- NEW (classy redesign): line-art compass instead of the 🧭 emoji -->
+          <h4>
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#30465e" stroke-width="1.6" style="vertical-align:-2px; margin-right:4px;">
+              <circle cx="12" cy="12" r="9"/>
+              <path d="M15.5 8.5l-4 4.3-4.8 2.2 2.2-4.8 4.3-4z"/>
+            </svg>
+            Explorer
+          </h4>
+          <p class="role-sub">Teachers and school staff</p>
+          <button class="primary" onclick="chooseRole('explorer')">Join as an Explorer</button>
+
+          <!-- NEW (classy redesign): line-art star instead of the 🌟 emoji -->
+          <h4>
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#30465e" stroke-width="1.6" style="vertical-align:-2px; margin-right:4px;">
+              <path d="M12 3l2.4 6.1 6.1.5-4.7 4 1.5 6-5.3-3.4-5.3 3.4 1.5-6-4.7-4 6.1-.5z"/>
+            </svg>
+            Sky Partner
+          </h4>
+          <p class="role-sub">Clubs, universities, and space enthusiasts</p>
+          <button class="primary" onclick="chooseRole('partner')">Join as a Sky Partner</button>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- NEW (Step 22): only reachable by signing in as an admin -->
+  <div id="adminScreen" class="dashboard" style="display: none; position: relative;">
+    <button class="logout-btn ghost-btn" onclick="logout()">Log out</button>
+    <h2>Admin Dashboard</h2>
+    <!-- NEW (Step 23): moved here from the welcome screen, admin-only info now -->
+    <p id="accountCount">Loading account count…</p>
+    <button class="primary" onclick="viewAccounts()">View All Accounts</button>
+    <!-- NEW (Step 30): admin can see every request, with its status -->
+    <button class="primary" onclick="viewAllRequests()">View All Requests</button>
+  </div>
+
+  <div id="accountsListScreen" style="display: none;">
+    <h2>All Registered Accounts</h2>
+    <div id="accountsListContent"></div>
+    <button class="ghost-btn" onclick="showScreen('admin')">← Back</button>
+  </div>
+
+  <!-- NEW (Step 30): every request in the system, status included -->
+  <div id="requestsListScreen" style="display: none;">
+    <h2>All Requests</h2>
+    <div id="requestsListContent"></div>
+    <button class="ghost-btn" onclick="showScreen('admin')">← Back</button>
+  </div>
+
+  <!-- BROUGHT BACK: a dedicated Sign In page, so "Already registered?" clearly opens a login screen -->
+  <div id="signinScreen" style="display: none;">
+    <img class="art page-art" src="images/signin.jpg" alt="A handshake between a school and an observatory, inside a ring of stars">
+    <div class="section">
+      <h2>Sign in</h2>
+      <input id="signinPageEmailBox" type="email" placeholder="Username/Email">
+      <input id="signinPagePasswordBox" type="password" placeholder="Password">
+      <button class="primary" onclick="signIn('signinPageEmailBox', 'signinPagePasswordBox', 'signinPageMessage')">Sign In</button>
+      <p id="signinPageMessage"></p>
+    </div>
+    <button class="ghost-btn" onclick="showScreen('welcome')">← Back</button>
+  </div>
+
+  <div id="explorerSignupScreen" style="display: none;">
+    <!-- NEW (Step 32): offer Sign In before registration, in case they already have an account -->
+    <!-- UPDATED (welcome page redesign): Sign In now lives on the welcome page itself -->
+    <p>Already registered? <button class="ghost-btn" onclick="goToSignIn()">Sign In</button></p>
+
+    <img class="art page-art" src="images/register.jpg" alt="The Earth ringed by orbits, with a school and an observatory below">
+    <h2>Explorer Registration</h2>
+    <input id="explorerSchoolBox" placeholder="School name *">
+    <!-- UPDATED: the address is now split into the usual parts -->
+    <input id="explorerStreetBox" placeholder="Street address *">
+    <input id="explorerCityBox" placeholder="City *">
+    <input id="explorerStateBox" placeholder="State (e.g. CA) *" maxlength="2">
+    <input id="explorerZipBox" placeholder="ZIP code *" maxlength="10">
+    <input id="explorerNameBox" placeholder="Explorer name *">
+    <input id="explorerEmailBox" type="email" placeholder="Explorer email *">
+    <input id="explorerPasswordBox" type="password" placeholder="Password *">
+
+    <p>
+      <label><input type="checkbox" id="title1Box"> We are a Title 1 school</label>
+    </p>
+
+    <button class="primary" onclick="createExplorerAccount()">Register</button>
+    <p id="explorerSignupMessage"></p>
+    <button class="ghost-btn" onclick="showScreen('welcome')">← Back</button>
+  </div>
+
+  <div id="partnerSignupScreen" style="display: none;">
+    <!-- NEW (Step 32): same offer, same place, for Sky Partners -->
+    <!-- UPDATED (welcome page redesign): Sign In now lives on the welcome page itself -->
+    <p>Already registered? <button class="ghost-btn" onclick="goToSignIn()">Sign In</button></p>
+
+    <img class="art page-art" src="images/register.jpg" alt="The Earth ringed by orbits, with a school and an observatory below">
+    <h2>Sky Partner Registration</h2>
+    <input id="partnerOrgBox" placeholder="Organization name *">
+    <!-- UPDATED: the address is split into the usual parts, same as Explorers -->
+    <input id="partnerStreetBox" placeholder="Street address *">
+    <input id="partnerCityBox" placeholder="City *">
+    <input id="partnerStateBox" placeholder="State (e.g. CA) *" maxlength="2">
+    <input id="partnerZipBox" placeholder="ZIP code *" maxlength="10">
+    <input id="partnerNameBox" placeholder="Sky Partner name *">
+    <input id="partnerEmailBox" type="email" placeholder="Sky Partner email *">
+    <input id="partnerPasswordBox" type="password" placeholder="Password *">
+
+    <p>What do you have to offer? *</p>
+    <label><input type="checkbox" id="offerTelescope"> Telescope</label>
+    <label><input type="checkbox" id="offerExpertise"> Expertise</label>
+    <br>
+
+    <button class="primary" onclick="createPartnerAccount()">Register</button>
+    <p id="partnerSignupMessage"></p>
+    <button class="ghost-btn" onclick="showScreen('welcome')">← Back</button>
+  </div>
+
+  <!-- NEW (Step 24): now just a welcome message, the request list, and a button -->
+  <div id="explorerScreen" class="dashboard" style="display: none; position: relative;">
+    <button class="logout-btn ghost-btn" onclick="logout()">Log out</button>
+    <h2 id="explorerWelcome">Welcome</h2>
+
+    <h3>Your Requests</h3>
+    <div id="existingRequestsContent"></div>
+
+    <button class="primary" onclick="showScreen('newRequest')">+ New Request</button>
+  </div>
+
+  <!-- NEW (Step 24): the request form, moved here from the dashboard -->
+  <div id="newRequestScreen" style="display: none;">
+    <div class="section">
+      <h3>New Request</h3>
+
+      <p>What do you need? *</p>
+      <label><input type="radio" name="requestType" id="requestTelescope"> Telescope</label>
+      <label><input type="radio" name="requestType" id="requestSpeaker"> Guest speaker</label>
+      <br>
+
+      <input id="requestTopicBox" placeholder="Event topic *">
+      <br>
+      <label>Date * <input id="requestDateBox" type="date"></label>
+      <label>Time * <input id="requestTimeBox" type="time"></label>
+      <br>
+      <input id="requestCommentsBox" placeholder="Comments (optional)">
+      <br>
+
+      <button class="primary" onclick="sendRequest()">Send Request</button>
+      <p id="requestMessage"></p>
+    </div>
+
+    <button class="ghost-btn" onclick="showScreen('explorer')">← Back</button>
+  </div>
+
+  <!-- NEW (Step 27): now mirrors the Explorer dashboard's structure -->
+  <div id="partnerScreen" class="dashboard" style="display: none; position: relative;">
+    <button class="logout-btn ghost-btn" onclick="logout()">Log out</button>
+    <h2 id="partnerWelcome">Sky Partner Dashboard</h2>
+
+    <!-- NEW (Step 34): renamed from "Existing Requests" for Sky Partners -->
+    <h3>Committed Requests</h3>
+    <div id="partnerExistingRequestsContent"></div>
+
+    <button class="primary" onclick="openIncomingRequests()">Incoming Requests</button>
+  </div>
+
+  <!-- the pending-requests list, moved to its own screen -->
+  <div id="incomingRequestsScreen" style="display: none;">
+    <h2>Incoming Requests</h2>
+    <!-- shows "someone else already confirmed this" if a race happens -->
+    <p id="incomingRequestsMessage"></p>
+
+    <!-- NEW (Step 35): split into two labeled sections -->
+    <h3>Open Requests</h3>
+    <div id="openRequestsContent"></div>
+
+    <h3>Confirmed Requests</h3>
+    <div id="confirmedRequestsContent"></div>
+
+    <button class="ghost-btn" onclick="showScreen('partner')">← Back</button>
+  </div>
+
+  <script>
+    let chosenRole = "";
+
+    // NEW (Step 22): remembers who is currently signed in, like a name badge.
+    // It's set inside signIn(), and every screen can check it.
+    let currentUser = null;
+
+    // no more local "accounts" list — everything now lives
+    // in shared storage, reached through claude.use("db")
+
+    // NEW (Step 22): seeds the one admin account, but only if it isn't
+    // already there — the opposite check from Step 20's duplicate check
+    async function ensureAdminAccount() {
+      let db = await claude.use("db");
+      let existing = await db.collection("accounts").doc("2021sarac@gmail.com").get();
+
+      if (existing.exists === false) {
+        await db.collection("accounts").doc("2021sarac@gmail.com").set({
+          role: "admin",
+          username: "sara",
+          email: "2021sarac@gmail.com",
+          password: "SaraC112010"
+        });
+      }
+    }
+
+    function chooseRole(role) {
+      chosenRole = role;
+      if (role === "partner") {
+        showScreen("partnerSignup");
+      } else {
+        showScreen("explorerSignup");
+      }
+    }
+
+    // NEW (Step 19): "async" lets this function use "await" inside it
+    async function createExplorerAccount() {
+      let school = document.getElementById("explorerSchoolBox").value;
+      let street = document.getElementById("explorerStreetBox").value;
+      let city = document.getElementById("explorerCityBox").value;
+      let state = document.getElementById("explorerStateBox").value.toUpperCase();
+      let zip = document.getElementById("explorerZipBox").value;
+      let name = document.getElementById("explorerNameBox").value;
+      let email = document.getElementById("explorerEmailBox").value;
+      let password = document.getElementById("explorerPasswordBox").value;
+      let title1 = document.getElementById("title1Box").checked;
+
+      if (school === "" || street === "" || city === "" || state === "" || zip === "" || name === "" || email === "" || password === "") {
+        document.getElementById("explorerSignupMessage").textContent = "Please fill in all the boxes marked with *.";
+        return;
+      }
+
+      let newAccount = {
+        role: "explorer",
+        school: school,
+        // the pieces, plus one combined line so older code that reads
+        // "address" keeps working
+        street: street,
+        city: city,
+        state: state,
+        zip: zip,
+        address: street + ", " + city + ", " + state + " " + zip,
+        name: name,
+        email: email,
+        password: password,
+        title1: title1
+      };
+
+      // connect to shared storage, then save this account
+      // at the address "accounts/<their email>" and wait for it to finish
+      let db = await claude.use("db");
+
+      // NEW (Step 20): check the address BEFORE writing to it
+      let existing = await db.collection("accounts").doc(email).get();
+      if (existing.exists) {
+        document.getElementById("explorerSignupMessage").textContent = "This account is already registered. Please sign in instead.";
+        return;
+      }
+
+      await db.collection("accounts").doc(email).set(newAccount);
+
+      // NEW (Step 24): remember who this is, same as signIn() does
+      currentUser = newAccount;
+      updateAccountCount();
+      openExplorerDashboard();
+    }
+
+    // NEW (Step 19): async, same pattern as the Explorer version
+    async function createPartnerAccount() {
+      let org = document.getElementById("partnerOrgBox").value;
+      let street = document.getElementById("partnerStreetBox").value;
+      let city = document.getElementById("partnerCityBox").value;
+      let state = document.getElementById("partnerStateBox").value.toUpperCase();
+      let zip = document.getElementById("partnerZipBox").value;
+      let name = document.getElementById("partnerNameBox").value;
+      let email = document.getElementById("partnerEmailBox").value;
+      let password = document.getElementById("partnerPasswordBox").value;
+      let telescope = document.getElementById("offerTelescope").checked;
+      let expertise = document.getElementById("offerExpertise").checked;
+
+      if (org === "" || street === "" || city === "" || state === "" || zip === "" || name === "" || email === "" || password === "") {
+        document.getElementById("partnerSignupMessage").textContent = "Please fill in all the boxes marked with *.";
+        return;
+      }
+
+      if (telescope === false && expertise === false) {
+        document.getElementById("partnerSignupMessage").textContent = "Please choose at least one thing you can offer.";
+        return;
+      }
+
+      let newAccount = {
+        role: "sky_partner",
+        organization: org,
+        // the pieces, plus one combined line so older code that reads
+        // "address" keeps working
+        street: street,
+        city: city,
+        state: state,
+        zip: zip,
+        address: street + ", " + city + ", " + state + " " + zip,
+        name: name,
+        email: email,
+        password: password,
+        offersTelescope: telescope,
+        offersExpertise: expertise
+      };
+
+      let db = await claude.use("db");
+
+      // NEW (Step 20): check the address BEFORE writing to it
+      let existing = await db.collection("accounts").doc(email).get();
+      if (existing.exists) {
+        document.getElementById("partnerSignupMessage").textContent = "This account is already registered. Please sign in instead.";
+        return;
+      }
+
+      await db.collection("accounts").doc(email).set(newAccount);
+
+      // NEW (Step 27): remember who this is, so loadPartnerExistingRequests works
+      currentUser = newAccount;
+      updateAccountCount();
+      openPartnerDashboard(newAccount.name);
+    }
+
+    // NEW (Step 19): counts everyone in shared storage, not a local list
+    async function updateAccountCount() {
+      let db = await claude.use("db");
+      let snapshot = await db.collection("accounts").get();
+      document.getElementById("accountCount").textContent = "Total accounts registered: " + snapshot.size;
+    }
+
+    // reads every saved account from shared storage
+    async function viewAccounts() {
+      // NEW (Step 22): double-check currentUser, don't just trust the button being hidden
+      if (currentUser === null || currentUser.role !== "admin") {
+        return;
+      }
+
+      let db = await claude.use("db");
+      let snapshot = await db.collection("accounts").get();
+      let list = "";
+
+      for (let i = 0; i < snapshot.docs.length; i++) {
+        let account = snapshot.docs[i].data();
+        let line = "";
+
+        if (account.role === "explorer") {
+          line = "🧭 Explorer — " + account.school + " — " + account.email;
+          if (account.title1) {
+            line = line + " — Title 1";
+          }
+        } else {
+          line = "🌟 Sky Partner — " + account.organization + " — " + account.email;
+        }
+
+        list = list + "<p>" + line + "</p>";
+      }
+
+      if (list === "") {
+        list = "<p>No accounts yet. Register one to see it appear here.</p>";
+      }
+
+      document.getElementById("accountsListContent").innerHTML = list;
+      showScreen("accountsList");
+    }
+
+    // NEW (Step 30): every request in the system, admin-only, with its
+    // status spelled out - same shape as viewAccounts, just a different collection
+    async function viewAllRequests() {
+      if (currentUser === null || currentUser.role !== "admin") {
+        return;
+      }
+
+      let db = await claude.use("db");
+      let snapshot = await db.collection("requests").get();
+      let list = "";
+
+      for (let i = 0; i < snapshot.docs.length; i++) {
+        let req = snapshot.docs[i].data();
+
+        let icon = "🎤";
+        if (req.type === "Telescope") {
+          icon = "🔭";
+        }
+
+        let statusLabel = "⏳ Pending";
+        if (req.status === "confirmed") {
+          statusLabel = "✅ Confirmed by " + req.confirmedBy;
+        }
+
+        let line = icon + " " + req.school + " — " + req.type + ": " + req.topic
+          + " — " + req.date + " at " + req.time + " — " + statusLabel;
+
+        list = list + "<p>" + line + "</p>";
+      }
+
+      if (list === "") {
+        list = "<p>No requests have been sent yet.</p>";
+      }
+
+      document.getElementById("requestsListContent").innerHTML = list;
+      showScreen("requestsList");
+    }
+
+    function logout() {
+      // NEW (Step 22): forget who was signed in
+      currentUser = null;
+      showScreen("welcome");
+    }
+
+    // NEW (Step 19): no more loop! the email IS the address, so we go
+    // straight to that one document instead of checking every account
+    // NEW: there are now two sign-in forms (the welcome page and the Sign In
+    // page), so signIn() is told which boxes to read. With no
+    // arguments it uses the welcome page's boxes, like before.
+    async function signIn(emailId = "signinEmailBox", passwordId = "signinPasswordBox", messageId = "signinMessage") {
+      let email = document.getElementById(emailId).value;
+      let password = document.getElementById(passwordId).value;
+      let messageBox = document.getElementById(messageId);
+
+      if (email === "" || password === "") {
+        messageBox.textContent = "Please enter your email and password.";
+        return;
+      }
+
+      let db = await claude.use("db");
+      let doc = await db.collection("accounts").doc(email).get();
+
+      if (doc.exists === false) {
+        messageBox.textContent = "Wrong email or password.";
+        return;
+      }
+
+      let account = doc.data();
+      if (account.password !== password) {
+        messageBox.textContent = "Wrong email or password.";
+        return;
+      }
+
+      // NEW (Step 22): remember who's signed in for the rest of this visit
+      currentUser = account;
+
+      if (account.role === "admin") {
+        // NEW (Step 23): refresh the count right as the admin screen opens
+        updateAccountCount();
+        showScreen("admin");
+      } else if (account.role === "sky_partner") {
+        openPartnerDashboard(account.name);
+      } else {
+        openExplorerDashboard();
+      }
+    }
+
+    // NEW (Step 24): one place that sets up everything the Explorer
+    // Dashboard needs to show, then switches to it
+    async function openExplorerDashboard() {
+      document.getElementById("explorerWelcome").textContent = "Welcome, " + currentUser.name;
+      await loadMyRequests();
+      showScreen("explorer");
+    }
+
+    // NEW (Step 24): reads every request from shared storage, but only
+    // keeps the ones that belong to the signed-in Explorer
+    async function loadMyRequests() {
+      let db = await claude.use("db");
+      let snapshot = await db.collection("requests").get();
+      let rows = "";
+
+      for (let i = 0; i < snapshot.docs.length; i++) {
+        let req = snapshot.docs[i].data();
+
+        if (req.explorerEmail === currentUser.email) {
+          let status = '<span class="badge badge-open">Waiting for a Sky Partner</span>';
+          if (req.status === "confirmed") {
+            status = '<span class="badge badge-confirmed" title="' + escapeHtml(req.confirmedBy) + '">Matched with ' + escapeHtml(req.confirmedBy) + '</span>';
+          }
+
+          rows += '<tr>'
+            + '<td class="topic">' + escapeHtml(req.topic) + '</td>'
+            + '<td>' + escapeHtml(req.type) + '</td>'
+            + '<td class="nowrap">' + escapeHtml(formatWhenShort(req.date, req.time)) + '</td>'
+            + '<td>' + status + '</td>'
+            + '</tr>';
+        }
+      }
+
+      if (rows === "") {
+        document.getElementById("existingRequestsContent").innerHTML =
+          '<img class="art empty-art" src="images/waiting.jpg" alt=""><p class="empty-note">No requests yet. Press + New Request to send one.</p>';
+      } else {
+        document.getElementById("existingRequestsContent").innerHTML = wrapRequestTable(
+          ["Topic", "Needs", "When", "Status"], rows);
+      }
+    }
+
+    // NEW (request cards): two small helpers used by the cards.
+    // escapeHtml makes sure text people typed (like a topic) can never be
+    // read by the browser as page code.
+    function escapeHtml(text) {
+      if (text === undefined || text === null) {
+        return "";
+      }
+      return String(text)
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;");
+    }
+
+    // a shorter version for table cells: "Oct 15, 6:30 PM"
+    function formatWhenShort(date, time) {
+      let when = new Date(date + "T" + (time || "00:00"));
+      if (isNaN(when.getTime())) {
+        return date + " " + time;
+      }
+      return when.toLocaleDateString(undefined, { month: "short", day: "numeric" })
+        + ", " + when.toLocaleTimeString(undefined, { hour: "numeric", minute: "2-digit" });
+    }
+
+    // puts finished rows inside a table with column headings. If there are
+    // no rows (an "empty" message instead), the message is returned as it is.
+    function wrapRequestTable(headings, rows) {
+      if (rows.indexOf("<tr") === -1) {
+        return rows;
+      }
+      let head = "";
+      for (let i = 0; i < headings.length; i++) {
+        head += "<th>" + headings[i] + "</th>";
+      }
+      return '<div class="table-wrap"><table class="request-table"><thead><tr>' + head
+        + '</tr></thead><tbody>' + rows + '</tbody></table></div>';
+    }
+
+    // turns "2026-10-15" and "18:30" into "Thu, Oct 15, 2026 at 6:30 PM"
+    function formatWhen(date, time) {
+      let when = new Date(date + "T" + (time || "00:00"));
+      if (isNaN(when.getTime())) {
+        return date + " at " + time;
+      }
+      return when.toLocaleDateString(undefined, { weekday: "short", month: "short", day: "numeric", year: "numeric" })
+        + " at " + when.toLocaleTimeString(undefined, { hour: "numeric", minute: "2-digit" });
+    }
+
+    // one line per request. NEW (Step 28): now takes the request's own id,
+    // so a pending request can carry its own Confirm Match button
+    // ---- NEW: driving distance between an Explorer and the signed-in Sky Partner ----
+    // A web page can't contact map services itself, so the road distances are
+    // calculated ahead of time and saved in the "distances" collection, one
+    // card per Explorer + Sky Partner pair. Here we only READ them - no
+    // permission prompts. Returns { requestId: "24.5 mi, 31 min drive" }.
+    async function addDistances(requestDocs) {
+      let found = {};
+      if (currentUser === null) {
+        return found;
+      }
+
+      let db = await claude.use("db");
+      for (let i = 0; i < requestDocs.length; i++) {
+        let explorerEmail = requestDocs[i].data().explorerEmail;
+        let card = await db.collection("distances").doc(explorerEmail + "__" + currentUser.email).get();
+        if (card.exists) {
+          let info = card.data();
+          // a "~" marks distances worked out from a ZIP code instead of the exact street
+          let mark = "";
+          if (info.approximate) {
+            mark = "~";
+          }
+          found[requestDocs[i].id] = mark + info.miles + " mi, " + info.minutes + " min";
+        }
+      }
+      return found;
+    }
+
+    // builds one TABLE ROW for a Sky Partner. It takes the request's own id,
+    // so an open request can carry its own Confirm Match button.
+    // (the name still says "line" so the code that calls it stays the same)
+    // NEW: "priority" is true only for Title 1 rows in the OPEN list. Those
+    // rows get the highlight; everywhere else Title 1 is just a small badge.
+    function buildRequestLine(req, id, distance, priority) {
+      let school = '<span class="school-name">' + escapeHtml(req.school) + '</span>';
+      if (priority) {
+        school += '<span class="badge badge-priority">★ Title 1 · Priority</span>';
+      } else if (req.title1) {
+        school += '<span class="badge badge-title1">Title 1</span>';
+      }
+
+      let action = "";
+      if (req.status === "pending") {
+        action = '<button class="primary" onclick="confirmMatch(\'' + id + '\')">Confirm Match</button>';
+      } else if (req.status === "confirmed") {
+        action = '<span class="badge badge-confirmed" title="Confirmed by ' + escapeHtml(req.confirmedBy) + '">Confirmed</span>';
+      }
+
+      // the Explorer's notes sit in a hover tooltip on the topic
+      let notes = "";
+      if (req.comments) {
+        notes = ' title="' + escapeHtml(req.comments) + '"';
+      }
+
+      let rowClass = "";
+      if (priority) {
+        rowClass = ' class="priority-row"';
+      }
+
+      return '<tr' + rowClass + '>'
+        + '<td class="topic"' + notes + '>' + escapeHtml(req.topic) + '</td>'
+        + '<td>' + school + '</td>'
+        + '<td>' + escapeHtml(req.type) + '</td>'
+        + '<td class="nowrap">' + escapeHtml(formatWhenShort(req.date, req.time)) + '</td>'
+        + '<td class="nowrap">' + (distance ? escapeHtml(distance) : "") + '</td>'
+        + '<td class="nowrap">' + action + '</td>'
+        + '</tr>';
+    }
+
+    // loads the open (pending) queue AND the confirmed queue for the
+    // Incoming Requests page
+    async function loadIncomingRequests(distances) {
+      let db = await claude.use("db");
+      let snapshot = await db.collection("requests").get();
+      // the list appears right away; distances are looked up afterwards and
+      // the list is drawn again once they arrive (see the end of this function)
+      let known = distances || {};
+      let title1List = "";
+      let otherList = "";
+      // NEW (Step 35): a third bucket, for every confirmed request
+      let confirmedList = "";
+
+      // NEW: within each group, the soonest event comes first, so the most
+      // urgent Title 1 request is always the very top row.
+      // "2026-10-15" + "18:30" sorts correctly as plain text.
+      let openDocs = snapshot.docs.slice().sort(function (a, b) {
+        let whenA = (a.data().date || "") + " " + (a.data().time || "");
+        let whenB = (b.data().date || "") + " " + (b.data().time || "");
+        return whenA < whenB ? -1 : (whenA > whenB ? 1 : 0);
+      });
+      let title1Count = 0;
+      let otherCount = 0;
+
+      // pass 1: collect Title 1 schools' OPEN requests, highlighted
+      for (let i = 0; i < openDocs.length; i++) {
+        let req = openDocs[i].data();
+        if (req.status === "pending" && req.title1 === true) {
+          title1List = title1List + buildRequestLine(req, openDocs[i].id, known[openDocs[i].id], true);
+          title1Count++;
+        }
+      }
+
+      // pass 2: collect everyone else's OPEN requests
+      // "not true" instead of "exactly false" - this way
+      // a request saved with no title1 field at all still shows up here,
+      // instead of silently vanishing from both lists
+      for (let i = 0; i < openDocs.length; i++) {
+        let req = openDocs[i].data();
+        if (req.status === "pending" && req.title1 !== true) {
+          otherList = otherList + buildRequestLine(req, openDocs[i].id, known[openDocs[i].id]);
+          otherCount++;
+        }
+      }
+
+      // NEW: a heading row above each group, so the priority group is labelled
+      if (title1Count > 0) {
+        title1List = '<tr class="group-row group-priority"><td colspan="6">★ Priority · Title 1 schools (' + title1Count + ')</td></tr>' + title1List;
+      }
+      if (otherCount > 0 && title1Count > 0) {
+        otherList = '<tr class="group-row"><td colspan="6">Other schools (' + otherCount + ')</td></tr>' + otherList;
+      }
+
+      // NEW (Step 35): pass 3 - every CONFIRMED request, by any Sky Partner
+      for (let i = 0; i < snapshot.docs.length; i++) {
+        let req = snapshot.docs[i].data();
+        // only the ones THIS Sky Partner confirmed, not other partners' matches
+        if (req.status === "confirmed" && req.confirmedBy === currentUser.email) {
+          confirmedList = confirmedList + buildRequestLine(req, snapshot.docs[i].id, known[snapshot.docs[i].id]);
+        }
+      }
+
+      let openList = title1List + otherList;
+      if (openList === "") {
+        openList = '<img class="art empty-art" src="images/waiting.jpg" alt=""><p class="empty-note">No open requests right now.</p>';
+      }
+      if (confirmedList === "") {
+        confirmedList = '<p class="empty-note">No confirmed requests yet.</p>';
+      }
+
+      // NEW (Step 35): write each queue into its own section
+      // NEW: a short callout above the table when Title 1 schools are waiting
+      let callout = "";
+      if (title1Count === 1) {
+        callout = '<p class="priority-callout">★ 1 request from a Title 1 school needs a Sky Partner. Title 1 schools are underfunded, so they are listed first.</p>';
+      } else if (title1Count > 1) {
+        callout = '<p class="priority-callout">★ ' + title1Count + ' requests from Title 1 schools need a Sky Partner. Title 1 schools are underfunded, so they are listed first.</p>';
+      }
+      document.getElementById("openRequestsContent").innerHTML = callout + wrapRequestTable(["Topic", "School", "Needs", "When", "Drive", ""], openList);
+      document.getElementById("confirmedRequestsContent").innerHTML = wrapRequestTable(["Topic", "School", "Needs", "When", "Drive", ""], confirmedList);
+
+      // first pass only: look up distances, then draw the list again with them
+      if (distances === undefined) {
+        addDistances(snapshot.docs).then(function (found) {
+          if (currentUser !== null && Object.keys(found).length > 0) {
+            loadIncomingRequests(found);
+          }
+        });
+      }
+    }
+
+    // requests THIS partner has already confirmed —
+    // empty for now, since there's no Confirm button yet
+    async function loadPartnerExistingRequests(distances) {
+      let db = await claude.use("db");
+      let snapshot = await db.collection("requests").get();
+      let list = "";
+      let known = distances || {};
+
+      for (let i = 0; i < snapshot.docs.length; i++) {
+        let req = snapshot.docs[i].data();
+        if (req.status === "confirmed" && req.confirmedBy === currentUser.email) {
+          list = list + buildRequestLine(req, snapshot.docs[i].id, known[snapshot.docs[i].id]);
+        }
+      }
+
+      if (list === "") {
+        list = '<p class="empty-note">No confirmed requests yet.</p>';
+      }
+
+      document.getElementById("partnerExistingRequestsContent").innerHTML = wrapRequestTable(["Topic", "School", "Needs", "When", "Drive", ""], list);
+
+      // first pass only: look up distances, then draw the list again with them
+      if (distances === undefined) {
+        addDistances(snapshot.docs).then(function (found) {
+          if (currentUser !== null && Object.keys(found).length > 0) {
+            loadPartnerExistingRequests(found);
+          }
+        });
+      }
+    }
+
+    // NEW (Step 27): opens the Sky Partner dashboard — now loads THEIR
+    // existing requests, not the incoming list (that moved to its own screen)
+    async function openPartnerDashboard(name) {
+      document.getElementById("partnerWelcome").textContent = "Welcome, " + name;
+      await loadPartnerExistingRequests();
+      showScreen("partner");
+    }
+
+    // the handshake! Fetch the one request, change two
+    // fields on it, and save it back - same pattern as everything else,
+    // just changing an existing document instead of creating a new one
+    async function confirmMatch(requestId) {
+      let db = await claude.use("db");
+      let doc = await db.collection("requests").doc(requestId).get();
+
+      if (doc.exists === false) {
+        return;
+      }
+
+      // NEW (Step 33): make our OWN copy of the data instead of using
+      // doc.data() directly - saved data comes back "frozen" (locked
+      // against changes), so trying to edit it directly does nothing at
+      // all, silently. { ...doc.data() } copies every field into a brand
+      // new, editable object.
+      let req = { ...doc.data() };
+
+      // the REAL lock. Hiding the button isn't enough on its
+      // own - this check happens again right here, right before saving, so
+      // two Sky Partners can never both confirm the same request.
+      if (req.status === "confirmed") {
+        document.getElementById("incomingRequestsMessage").textContent =
+          "Someone already confirmed this request - sorry!";
+        await loadIncomingRequests();
+        return;
+      }
+
+      req.status = "confirmed";
+      req.confirmedBy = currentUser.email;
+
+      await db.collection("requests").doc(requestId).set(req);
+
+      // refresh the incoming list so the confirmed request's button disappears
+      await loadIncomingRequests();
+
+      // NEW: a web page can't send email by itself, so we build a ready-to-send
+      // email and show a link. Clicking it opens the Sky Partner's own email
+      // app with the To, Subject and message already filled in.
+      let subject = "Your Cosmic Connectors request is confirmed";
+      let body = "Hello,\n\n"
+        + "Good news! A Sky Partner has confirmed your request on Cosmic Connectors.\n\n"
+        + "Request: " + req.type + " - " + req.topic + "\n"
+        + "Date: " + req.date + " at " + req.time + "\n\n"
+        + "Sky Partner: " + currentUser.name + ", " + currentUser.organization + "\n"
+        + "Contact: " + currentUser.email + "\n\n"
+        + "Please reply to this email so we can plan the details.\n\n"
+        + "Thank you,\n" + currentUser.name;
+
+      // encodeURIComponent makes the text safe to put inside a link
+      let mailLink = "mailto:" + encodeURIComponent(req.explorerEmail)
+        + "?subject=" + encodeURIComponent(subject)
+        + "&body=" + encodeURIComponent(body);
+
+      document.getElementById("incomingRequestsMessage").innerHTML =
+        "✅ Match confirmed! <a href=\"" + mailLink + "\" target=\"_blank\">Email the Explorer to let them know</a>";
+    }
+
+    // runs when the Incoming Requests button is pressed
+    async function openIncomingRequests() {
+      await loadIncomingRequests();
+      showScreen("incomingRequests");
+    }
+
+    // NEW (Step 24): async, because it now saves to shared storage
+    async function sendRequest() {
+      let telescopeChosen = document.getElementById("requestTelescope").checked;
+      let speakerChosen = document.getElementById("requestSpeaker").checked;
+      let topic = document.getElementById("requestTopicBox").value;
+      let date = document.getElementById("requestDateBox").value;
+      let time = document.getElementById("requestTimeBox").value;
+      let comments = document.getElementById("requestCommentsBox").value;
+
+      if (telescopeChosen === false && speakerChosen === false) {
+        document.getElementById("requestMessage").textContent = "Please choose Telescope or Guest speaker.";
+        return;
+      }
+
+      if (topic === "" || date === "" || time === "") {
+        document.getElementById("requestMessage").textContent = "Please fill in the topic, date and time.";
+        return;
+      }
+
+      let type = "Guest speaker";
+      if (telescopeChosen) {
+        type = "Telescope";
+      }
+
+      // NEW (Step 24): bundle it into an object, just like an account
+      // NEW (Step 26): title1 comes from the Explorer's own account,
+      // saved here so Sky Partners can sort by it later
+      let newRequest = {
+        explorerEmail: currentUser.email,
+        school: currentUser.school,
+        title1: currentUser.title1,
+        type: type,
+        topic: topic,
+        date: date,
+        time: time,
+        comments: comments,
+        status: "pending"
+      };
+
+      // NEW (Step 24): each request gets its own unique id (requests don't
+      // have one natural "address" like email, so we build one from the time)
+      let requestId = "req_" + Date.now();
+      let db = await claude.use("db");
+      await db.collection("requests").doc(requestId).set(newRequest);
+
+      // clear the form and go back to the dashboard, which will show the new request
+      document.getElementById("requestTopicBox").value = "";
+      document.getElementById("requestCommentsBox").value = "";
+      document.getElementById("requestMessage").textContent = "";
+      openExplorerDashboard();
+    }
+
+    // NEW: the "Already registered? Sign In" links use this. It shows the
+    // welcome page (where the sign-in box lives), then puts the cursor in the
+    // email box - which also scrolls the box into view on small screens.
+    function goToSignIn() {
+      showScreen("signin");
+      document.getElementById("signinPageMessage").textContent = "";
+      document.getElementById("signinPageEmailBox").focus();
+    }
+
+    function showScreen(name) {
+      document.getElementById("welcomeScreen").style.display = "none";
+      document.getElementById("signinScreen").style.display = "none";
+      document.getElementById("accountsListScreen").style.display = "none";
+      document.getElementById("explorerSignupScreen").style.display = "none";
+      document.getElementById("partnerSignupScreen").style.display = "none";
+      document.getElementById("explorerScreen").style.display = "none";
+      document.getElementById("partnerScreen").style.display = "none";
+      document.getElementById("adminScreen").style.display = "none";
+      document.getElementById("newRequestScreen").style.display = "none";
+      // NEW (Step 27): hide the incoming requests screen too
+      document.getElementById("incomingRequestsScreen").style.display = "none";
+      // NEW (Step 30): hide the all-requests screen too
+      document.getElementById("requestsListScreen").style.display = "none";
+
+      if (name === "welcome") {
+        document.getElementById("welcomeScreen").style.display = "block";
+      } else if (name === "accountsList") {
+        document.getElementById("accountsListScreen").style.display = "block";
+      } else if (name === "signin") {
+        document.getElementById("signinScreen").style.display = "block";
+      } else if (name === "explorerSignup") {
+        document.getElementById("explorerSignupScreen").style.display = "block";
+      } else if (name === "partnerSignup") {
+        document.getElementById("partnerSignupScreen").style.display = "block";
+      } else if (name === "explorer") {
+        document.getElementById("explorerScreen").style.display = "block";
+      } else if (name === "partner") {
+        document.getElementById("partnerScreen").style.display = "block";
+      // NEW (Step 22): show the admin screen when asked
+      } else if (name === "admin") {
+        document.getElementById("adminScreen").style.display = "block";
+      // NEW (Step 24): show the New Request screen when asked
+      } else if (name === "newRequest") {
+        document.getElementById("newRequestScreen").style.display = "block";
+      // NEW (Step 27): show the incoming requests screen when asked
+      } else if (name === "incomingRequests") {
+        document.getElementById("incomingRequestsScreen").style.display = "block";
+      // NEW (Step 30): show the all-requests screen when asked
+      } else if (name === "requestsList") {
+        document.getElementById("requestsListScreen").style.display = "block";
+      }
+    }
+
+    // NEW (Step 23): the count is no longer loaded here — only when the
+    // admin signs in, since it's admin-only information now
+    ensureAdminAccount();
+  </script>
+</body>
+</html>
